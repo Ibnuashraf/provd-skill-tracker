@@ -7,6 +7,23 @@ export default function Landing({ setUName, setView }) {
   const [qIdx, setQIdx] = useState(0);
   const [showModal, setShowModal] = useState(false);
 
+  // Maximum Dynamic States for Landing Hero Preview
+  const [heroStreak, setHeroStreak] = useState(24);
+  const [heroBuddyStreak, setHeroBuddyStreak] = useState(21);
+  const [heroNudgeMsg, setHeroNudgeMsg] = useState('');
+
+  const handleHeroNudge = (type) => {
+    if (type === 'coffee') {
+      setHeroStreak(prev => prev + 1);
+      setHeroNudgeMsg("☕ 'Thanks for the coffee! Hot caffeinated focus! Your turn to log!' — Ryan");
+    } else if (type === 'poke') {
+      setHeroNudgeMsg("⚡ 'Ouch! Poked! Fine, fine, closing Twitter and coding now!' — Ryan");
+    } else {
+      setHeroNudgeMsg("🤝 '1v1 accountability sprint accepted! Let's build!' — Ryan");
+    }
+    setTimeout(() => setHeroNudgeMsg(''), 4500);
+  };
+
   useEffect(() => {
     const timer = setInterval(() => {
       setQIdx((prev) => (prev + 1) % QUOTES.length);
@@ -59,7 +76,7 @@ export default function Landing({ setUName, setView }) {
         <div className="hero-in">
           <div className="eyebrow" style={{justifyContent:'center'}}>
             <div className="eln"></div>
-            <div className="etx">Skill Tracking Protocol v2.0</div>
+            <div className="etx">Skill Tracking Protocol v2.5</div>
             <div className="eln"></div>
           </div>
           <h1>Track depth,<br /><span className="il">not</span> <span className="out">delusion</span>.</h1>
@@ -70,26 +87,60 @@ export default function Landing({ setUName, setView }) {
           </div>
         </div>
         
-        <div className="mock-ui">
-          <div style={{padding:'20px', borderBottom:'1px solid rgba(255,255,255,0.05)', display:'flex', gap:'10px', alignItems:'center'}}>
-            <div style={{width:'12px',height:'12px',borderRadius:'50%',background:'#E04A20'}}></div>
-            <div style={{width:'12px',height:'12px',borderRadius:'50%',background:'#FBBC05'}}></div>
-            <div style={{width:'12px',height:'12px',borderRadius:'50%',background:'#B8E830'}}></div>
-            <div style={{marginLeft:'auto', fontSize:'.8rem', color:'var(--ink2)'}}>provd.app/dashboard</div>
+        {/* Maximum Dynamic Live Interactive Buddy Dashboard Preview */}
+        <div className="mock-ui hover-3d" style={{ maxWidth: '640px', margin: '0 auto', transition: 'all 0.3s ease' }}>
+          <div style={{padding:'14px 20px', borderBottom:'1px solid rgba(255,255,255,0.05)', display:'flex', gap:'10px', alignItems:'center'}}>
+            <div style={{width:'10px',height:'10px',borderRadius:'50%',background:'#E04A20'}}></div>
+            <div style={{width:'10px',height:'10px',borderRadius:'50%',background:'#FBBC05'}}></div>
+            <div style={{width:'10px',height:'10px',borderRadius:'50%',background:'#B8E830'}}></div>
+            <div style={{marginLeft:'auto', fontSize:'.72rem', color:'var(--ink2)', letterSpacing: '0.04em'}}>🤝 INVITATION ENGINE & COMPARATIVE HUD</div>
           </div>
-          <div style={{padding:'30px', display:'flex', gap:'20px'}}>
-             <div style={{width:'200px', height:'140px', background:'rgba(255,255,255,0.03)', borderRadius:'8px', padding:'20px'}}>
-                <div style={{fontSize:'.8rem', color:'var(--ink2)', marginBottom:'10px'}}>Current Streak</div>
-                <div style={{fontSize:'2rem', color:'var(--lime)', fontWeight:800}}>24 days</div>
+          
+          <div style={{padding:'24px', display:'flex', flexDirection: 'column', gap:'16px'}}>
+             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+               <div style={{flex: 1, minWidth: '180px', background:'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', borderRadius:'8px', padding:'16px'}}>
+                  <div style={{fontSize:'.68rem', textTransform:'uppercase', letterSpacing: '0.05em', color:'var(--ink3)', marginBottom:'6px'}}>Your Active Streak</div>
+                  <div style={{fontSize:'1.8rem', color:'var(--lime)', fontWeight:800}}>🔥 {heroStreak} <span style={{fontSize: '0.8rem', color: 'var(--ink2)'}}>days</span></div>
+               </div>
+               <div style={{flex: 1, minWidth: '180px', background:'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', borderRadius:'8px', padding:'16px'}}>
+                  <div style={{fontSize:'.68rem', textTransform:'uppercase', letterSpacing: '0.05em', color:'var(--ink3)', marginBottom:'6px'}}>Buddy (Ryan) Streak</div>
+                  <div style={{fontSize:'1.8rem', color:'var(--amber)', fontWeight:800}}>🔥 {heroBuddyStreak} <span style={{fontSize: '0.8rem', color: 'var(--ink2)'}}>days</span></div>
+               </div>
              </div>
-             <div style={{flex:1, height:'140px', background:'rgba(255,255,255,0.03)', borderRadius:'8px', padding:'20px'}}>
-                <div style={{fontSize:'.8rem', color:'var(--ink2)', marginBottom:'10px'}}>Activity Heatmap</div>
-                <div style={{display:'flex', gap:'4px', flexWrap:'wrap'}}>
-                   {Array.from({length: 60}).map((_, i) => (
-                      <div key={i} style={{width:'12px', height:'12px', borderRadius:'2px', background: Math.random() > 0.6 ? 'rgba(184,232,48,'+(Math.random()*0.8+0.2)+')' : 'rgba(255,255,255,0.05)'}}></div>
-                   ))}
-                </div>
+
+             {/* Interactive stats meter */}
+             <div style={{ background: 'rgba(255,255,255,0.01)', padding: '14px', borderRadius: '8px', border: '0.5px solid rgba(255,255,255,0.03)' }}>
+               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', marginBottom: '8px', color: 'var(--ink2)' }}>
+                 <span>Streak Ratio comparison meter (Interactive)</span>
+                 <span style={{ color: 'var(--lime)' }}>{Math.round((heroStreak/(heroStreak+heroBuddyStreak))*100)}% Yours</span>
+               </div>
+               <div style={{ height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', overflow: 'hidden', display: 'flex' }}>
+                 <div style={{ width: `${(heroStreak / (heroStreak + heroBuddyStreak)) * 100}%`, background: 'var(--lime)', transition: 'width 0.4s' }} />
+                 <div style={{ width: `${(heroBuddyStreak / (heroStreak + heroBuddyStreak)) * 100}%`, background: 'var(--amber)', transition: 'width 0.4s' }} />
+               </div>
              </div>
+
+             {/* Interactive triggers */}
+             <div style={{ display: 'flex', gap: '10px' }}>
+               <button className="gbtn hover-3d" onClick={() => handleHeroNudge('coffee')} style={{ padding: '8px 12px', fontSize: '0.74rem', flex: 1 }}>☕ Send Coffee</button>
+               <button className="gbtn hover-3d" onClick={() => handleHeroNudge('poke')} style={{ padding: '8px 12px', fontSize: '0.74rem', flex: 1 }}>⚡ Poke Ryan</button>
+               <button className="gbtn hover-3d" onClick={() => handleHeroNudge('challenge')} style={{ padding: '8px 12px', fontSize: '0.74rem', flex: 1 }}>🤝 1v1 Sprint</button>
+             </div>
+
+             {heroNudgeMsg && (
+               <div style={{ 
+                 background: 'rgba(184,232,48,0.06)', 
+                 border: '0.5px solid rgba(184,232,48,0.2)', 
+                 borderRadius: '6px', 
+                 padding: '10px 14px', 
+                 fontSize: '0.78rem', 
+                 color: 'var(--lime)', 
+                 fontStyle: 'italic',
+                 animation: 'vfade 0.2s ease'
+               }}>
+                 {heroNudgeMsg}
+               </div>
+             )}
           </div>
         </div>
 
@@ -145,10 +196,10 @@ export default function Landing({ setUName, setView }) {
           </div>
           <div className="stps">
             {[
-              { num: 'Step 1', title: 'Pick one high-leverage skill', desc: 'Ignore the noise. Pick the highest leverage skill you need right now and commit to it.' },
-              { num: 'Step 2', title: 'AI generates your roadmap', desc: 'Our AI instantly breaks down any skill into 5 sequential, achievable milestones.' },
-              { num: 'Step 3', title: 'Log the raw evidence', desc: 'Did you build it? Solve it? Read it? Log it. Only real work earns you points.' },
-              { num: 'Step 4', title: 'Maintain your streak', desc: 'Don\'t break the streak. Small daily inputs compound rapidly into mastery.' }
+              { num: 'Step 1', title: 'Pick one high-leverage skill', desc: 'Ignore the noise. Pick the highest leverage skill you need right now and commit.' },
+              { num: 'Step 2', title: 'AI drafts 10 sequential levels', desc: 'Our curriculum engine instantly breaks down any skill into 10 achievable steps.' },
+              { num: 'Step 3', title: 'Invite your Skill Buddy', desc: 'Generate a link. Let your friend observe your growth or pair up as 1v1 competitors.' },
+              { num: 'Step 4', title: 'Log raw evidence', desc: 'Build it, solve it, teach it, read it. Earn points only by shipping real work.' }
             ].map((s, i) => (
               <div className={`stp hover-3d reveal-pop delay-${i+1}`} key={i}>
                 <div className="snum">{s.num}</div>
@@ -171,8 +222,10 @@ export default function Landing({ setUName, setView }) {
         <div className="feat-g">
           {[
             { title: 'Evidence Logging', desc: 'A frictionless way to log what you actually did today. Built, solved, taught, or read.', tag: 'Core mechanism' },
-            { title: 'AI Curriculum Designer', desc: 'Type any skill, and our AI instantly drafts a customized 5-step roadmap tailored for you.', tag: 'Smart planning' },
-            { title: 'Consistency Streaks', desc: 'Visual streaks and activity heatmaps to keep you strictly accountable.', tag: 'Psychology' }
+            { title: 'AI 10-Level Curriculum', desc: 'Type any skill, and our AI instantly drafts a customized, sequential 10-step roadmap from beginner to master.', tag: 'Smart planning' },
+            { title: 'Consistency Streaks', desc: 'Visual streaks and activity heatmaps to keep you strictly accountable.', tag: 'Psychology' },
+            { title: 'Skill Buddy Invites', desc: 'Generate a serverless link. Accountability partners can observe in read-only or join to compare streaks 1v1.', tag: 'Accountability' },
+            { title: 'Gemini Weekly Planner', desc: 'Type a specific learning goal, and Gemini will instantly generate an actionable 3-day roadmap.', tag: 'Personalized Coach' }
           ].map((f, i) => (
             <div className={`feat-c hover-3d reveal-pop delay-${i+1}`} key={i}>
               <div className="ftit">{f.title}</div>
