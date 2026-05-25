@@ -69,11 +69,6 @@ export default function Landing({ setUName, setView }) {
             <button className="nbtn-ghost" onClick={() => document.getElementById('problems').scrollIntoView({behavior:'smooth'})}>Read the manifesto</button>
           </div>
         </div>
-
-        <div className="sc-hint" style={{bottom: '20px'}}>
-          <span>Scroll</span>
-          <div className="scl"></div>
-        </div>
       </section>
 
       <div className="ticker">
@@ -151,7 +146,8 @@ export default function Landing({ setUName, setView }) {
             { title: 'AI 10-Level Curriculum', desc: 'Type any skill, and our AI instantly drafts a customized, sequential 10-step roadmap from beginner to master.', tag: 'Smart planning' },
             { title: 'Consistency Streaks', desc: 'Visual streaks and activity heatmaps to keep you strictly accountable.', tag: 'Psychology' },
             { title: 'Skill Buddy Invites', desc: 'Generate a serverless link. Accountability partners can observe in read-only or join to compare streaks 1v1.', tag: 'Accountability' },
-            { title: 'Gemini Weekly Planner', desc: 'Type a specific learning goal, and Gemini will instantly generate an actionable 3-day roadmap.', tag: 'Personalized Coach' }
+            { title: 'Gemini Weekly Planner', desc: 'Type a specific learning goal, and Gemini will instantly generate an actionable 3-day roadmap.', tag: 'Personalized Coach' },
+            { title: 'Progress Analytics', desc: 'Track your learning velocity with detailed insights. See patterns in your growth and identify what works.', tag: 'Data-driven' }
           ].map((f, i) => (
             <div className={`feat-c hover-3d reveal-pop delay-${i+1}`} key={i}>
               <div className="ftit">{f.title}</div>
