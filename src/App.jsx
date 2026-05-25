@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Landing from './Landing';
 import Dashboard from './Dashboard';
 import { LogView, SkillsView, MilestonesView, AchievementsView, AiAssistantView } from './OtherViews';
