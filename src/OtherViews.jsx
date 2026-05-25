@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { LEVEL_NAMES } from './Data';
 import { chatWithAi, generateMilestones, generateWeeklyPlan } from './AiService';
 
-export function LogView({ SD, ENTRIES, setENTRIES }) {
+export function LogView({ SD, ENTRIES, setENTRIES, observerMode }) {
   const [selType, setSelType] = useState('built');
   const [note, setNote] = useState('');
   const [selSk, setSelSk] = useState(SD.length > 0 ? SD[0].id : '');
@@ -47,7 +47,7 @@ export function LogView({ SD, ENTRIES, setENTRIES }) {
           <label className="flb">What did you do? (one sentence)</label>
           <input type="text" className="fi" value={note} onChange={e => setNote(e.target.value)} placeholder="Built a CLI app using lists and file storage…" />
         </div>
-        <button className="sbmt" onClick={submitLog}>Log it →</button>
+        <button className="sbmt" onClick={submitLog} disabled={observerMode} style={{ opacity: observerMode ? 0.5 : 1 }}>{observerMode ? 'Disabled in Observer Mode' : 'Log it →'}</button>
       </div>
       
       <div className="sec-lbl">Recent entries</div>
@@ -64,7 +64,7 @@ export function LogView({ SD, ENTRIES, setENTRIES }) {
   );
 }
 
-export function SkillsView({ SD, setSD, MS, setMS, setView }) {
+export function SkillsView({ SD, setSD, MS, setMS, setView, observerMode }) {
   const [showAdd, setShowAdd] = useState(false);
   const [newSk, setNewSk] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -94,7 +94,7 @@ export function SkillsView({ SD, setSD, MS, setMS, setView }) {
           <div className="vsub">Depth over breadth. Every time.</div>
         </div>
         <div>
-          <button className="nbtn-ghost" style={{padding:'8px 14px',fontSize:'.78rem'}} onClick={() => setShowAdd(!showAdd)}>+ Add new skill</button>
+          <button className="nbtn-ghost" style={{padding:'8px 14px',fontSize:'.78rem'}} onClick={() => !observerMode && setShowAdd(!showAdd)} disabled={observerMode}>{observerMode ? 'Read-only Mode' : '+ Add new skill'}</button>
           {showAdd && (
             <div className="nsk-form show">
               <input type="text" className="fi" value={newSk} onChange={e => setNewSk(e.target.value)} placeholder="Skill name..." style={{padding:'6px 10px',fontSize:'.8rem'}} disabled={isGenerating} />
@@ -143,13 +143,14 @@ export function SkillsView({ SD, setSD, MS, setMS, setView }) {
   );
 }
 
-export function MilestonesView({ SD, MS, setMS }) {
+export function MilestonesView({ SD, MS, setMS, observerMode }) {
   const [curSk, setCurSk] = useState(SD.length > 0 ? SD[0].id : '');
   const list = curSk && MS[curSk] ? MS[curSk] : [];
   const [editingIdx, setEditingIdx] = useState(null);
   const [editTx, setEditTx] = useState('');
 
   const toggleMs = (i) => {
+    if (observerMode) return;
     if (i > 0 && !list[i - 1].done) return;
     const newMs = [...list];
     newMs[i].done = !newMs[i].done;
@@ -157,6 +158,7 @@ export function MilestonesView({ SD, MS, setMS }) {
   };
 
   const startEdit = (i, tx) => {
+    if (observerMode) return;
     setEditingIdx(i);
     setEditTx(tx);
   };
@@ -181,7 +183,7 @@ export function MilestonesView({ SD, MS, setMS }) {
           <div className="vtit">Milestones</div>
           <div className="vsub">Click any text to edit or manually add steps below.</div>
         </div>
-        <button className="nbtn-ghost" style={{padding:'8px 14px',fontSize:'.78rem'}} onClick={addCustomMs}>+ Add step</button>
+        <button className="nbtn-ghost" style={{padding:'8px 14px',fontSize:'.78rem'}} onClick={addCustomMs} disabled={observerMode}>{observerMode ? 'Read-only' : '+ Add step'}</button>
       </div>
       <div style={{display:'flex',gap:'8px',marginBottom:'18px',flexWrap:'wrap'}}>
         {SD.map(s => (
@@ -246,7 +248,7 @@ export function AchievementsView({ ACHS }) {
   );
 }
 
-export function AiAssistantView({ SD }) {
+export function AiAssistantView({ SD, observerMode }) {
   const [plan, setPlan] = useState('');
   const [isPlanning, setIsPlanning] = useState(false);
   const [goal, setGoal] = useState('');
@@ -313,7 +315,7 @@ export function AiAssistantView({ SD }) {
             <label className="flb">What do you want to achieve this week?</label>
             <input type="text" className="fi" value={goal} onChange={e => setGoal(e.target.value)} placeholder="e.g., Learn to use APIs" />
           </div>
-          <button className="sbmt" onClick={genPlan} disabled={isPlanning}>{isPlanning ? 'Thinking...' : 'Generate plan →'}</button>
+          <button className="sbmt" onClick={genPlan} disabled={isPlanning || observerMode}>{isPlanning ? 'Thinking...' : observerMode ? 'Read-only' : 'Generate plan →'}</button>
           {plan && (
             <div style={{marginTop:'12px',background:'rgba(237,234,228,.02)',border:'.5px solid var(--bd)',borderRadius:'var(--r)',padding:'14px',fontSize:'.85rem',color:'var(--ink2)',lineHeight:1.7,whiteSpace:'pre-wrap'}}>
               {plan}
@@ -329,8 +331,8 @@ export function AiAssistantView({ SD }) {
             <div ref={chatEndRef} />
           </div>
           <div style={{display:'flex',gap:'8px'}}>
-            <input type="text" className="fi" value={msg} onChange={e => setMsg(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendChat()} placeholder="Ask anything..." />
-            <button className="sbmt" style={{padding:'10px 16px'}} onClick={sendChat}>Send</button>
+            <input type="text" className="fi" value={msg} onChange={e => setMsg(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendChat()} placeholder={observerMode ? 'Chat disabled in Observer Mode' : 'Ask anything...'} disabled={observerMode} />
+            <button className="sbmt" style={{padding:'10px 16px'}} onClick={sendChat} disabled={observerMode}>Send</button>
           </div>
         </div>
       </div>

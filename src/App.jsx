@@ -51,6 +51,32 @@ export default function App() {
   const [history, setHistory] = useState(['dashboard']);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  // Skill Buddy States
+  const [observerMode, setObserverMode] = useState(false);
+  const [buddy, setBuddy] = useState(null);
+  const [inviteData, setInviteData] = useState(null);
+  const [joinNameInput, setJoinNameInput] = useState('');
+
+  // Parse invite URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const invite = params.get('invite');
+    const bName = params.get('bName');
+    
+    if (invite === 'true' && bName) {
+      const bStreak = parseInt(params.get('bStreak') || '0', 10);
+      const bPoints = parseInt(params.get('bPoints') || '0', 10);
+      const bLevel = parseInt(params.get('bLevel') || '1', 10);
+      
+      setInviteData({
+        name: bName,
+        streak: bStreak,
+        points: bPoints,
+        level: bLevel
+      });
+    }
+  }, []);
+
   const view = history[history.length - 1];
 
   const setView = (newView) => {
@@ -74,6 +100,90 @@ export default function App() {
   const [ACHS, setACHS] = useState(INITIAL_ACHS);
 
   const maxStk = Math.max(...SD.map(s => s.stk), 0);
+
+  // Handle Observer Mode
+  const startObserving = () => {
+    if (!inviteData) return;
+    setObserverMode(true);
+    setUName(inviteData.name);
+    setHistory(['dashboard']);
+    setInviteData(null); // Close modal
+  };
+
+  // Handle Active Participation Joining
+  const startParticipating = () => {
+    if (!joinNameInput.trim() || !inviteData) return;
+    setObserverMode(false);
+    setUName(joinNameInput.trim());
+    setBuddy({
+      name: inviteData.name,
+      streak: inviteData.streak,
+      points: inviteData.points,
+      level: inviteData.level
+    });
+    setHistory(['dashboard']);
+    setInviteData(null); // Close modal
+  };
+
+  // Welcome / Invite Modal Overlay
+  if (inviteData) {
+    return (
+      <>
+        <Background />
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(5, 5, 5, 0.9)', zIndex: 1000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: 'sans-serif'
+        }}>
+          <div className="card hover-3d" style={{ maxWidth: '460px', padding: '30px', textAlign: 'center', border: '1px solid var(--bdl)' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '14px' }}>🤝</div>
+            <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, color: 'var(--ink)' }}>Skill Buddy Invitation</h2>
+            <p style={{ fontSize: '0.86rem', color: 'var(--ink2)', lineHeight: 1.6, margin: '14px 0 20px 0' }}>
+              <strong>{inviteData.name}</strong> (Streak: <strong>🔥 {inviteData.streak} days</strong>) has invited you to join them as a Skill Buddy on Provd!
+            </p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Option A: Observe */}
+              <button 
+                className="gbtn hover-3d" 
+                onClick={startObserving}
+                style={{ padding: '14px', width: '100%', fontSize: '0.86rem', display: 'flex', flexDirection: 'column', gap: '3px' }}
+              >
+                <span style={{ fontWeight: '700', color: 'var(--lime)' }}>👀 Observe Progress</span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--ink3)' }}>View {inviteData.name}'s dashboard without sharing your own stats</span>
+              </button>
+
+              <div className="mdiv" style={{ margin: '6px 0' }}>OR</div>
+
+              {/* Option B: Join */}
+              <div style={{ background: 'rgba(237,234,228,.02)', padding: '16px', borderRadius: 'var(--r)', border: '0.5px solid var(--bd)' }}>
+                <div style={{ fontSize: '0.84rem', fontWeight: '700', color: 'var(--ink)', marginBottom: '8px', textAlign: 'left' }}>
+                  🤝 Join as Active Buddy
+                </div>
+                <input 
+                  type="text" 
+                  className="fi" 
+                  placeholder="Enter your name..." 
+                  value={joinNameInput} 
+                  onChange={e => setJoinNameInput(e.target.value)}
+                  style={{ marginBottom: '12px' }}
+                />
+                <button 
+                  className="sbmt" 
+                  disabled={!joinNameInput.trim()}
+                  onClick={startParticipating}
+                  style={{ width: '100%', padding: '10px' }}
+                >
+                  Connect & Start Tracker →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   if (!uName) {
     return (
@@ -112,13 +222,46 @@ export default function App() {
             </div>
           </div>
 
+          {observerMode && (
+            <div style={{
+              background: 'rgba(184,232,48,.08)',
+              border: '0.5px solid rgba(184,232,48,.25)',
+              borderRadius: 'var(--r)',
+              padding: '12px 18px',
+              marginBottom: '20px',
+              fontSize: '0.84rem',
+              color: 'var(--lime)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              animation: 'vfade 0.25s ease'
+            }}>
+              <span>👀 <strong>Observer Mode:</strong> You are viewing <strong>{uName}</strong>'s progress dashboard in read-only.</span>
+              <button 
+                className="sbmt" 
+                onClick={() => {
+                  setObserverMode(false);
+                  setInviteData({
+                    name: uName,
+                    streak: maxStk,
+                    points: ENTRIES.reduce((a, b) => a + b.pts, 0),
+                    level: Math.max(...SD.map(s => s.lv), 1)
+                  });
+                }} 
+                style={{ padding: '6px 12px', fontSize: '0.76rem' }}
+              >
+                Join as Buddy
+              </button>
+            </div>
+          )}
+
           {view === 'dashboard' && <Dashboard SD={SD} ENTRIES={ENTRIES} maxStk={maxStk} setView={setView} />}
-          {view === 'log' && <LogView SD={SD} ENTRIES={ENTRIES} setENTRIES={setENTRIES} />}
-          {view === 'skills' && <SkillsView SD={SD} setSD={setSD} MS={MS} setMS={setMS} setView={setView} />}
-          {view === 'milestones' && <MilestonesView SD={SD} MS={MS} setMS={setMS} />}
+          {view === 'log' && <LogView SD={SD} ENTRIES={ENTRIES} setENTRIES={setENTRIES} observerMode={observerMode} />}
+          {view === 'skills' && <SkillsView SD={SD} setSD={setSD} MS={MS} setMS={setMS} setView={setView} observerMode={observerMode} />}
+          {view === 'milestones' && <MilestonesView SD={SD} MS={MS} setMS={setMS} observerMode={observerMode} />}
           {view === 'achievements' && <AchievementsView ACHS={ACHS} />}
-          {view === 'ai' && <AiAssistantView SD={SD} />}
-          {view === 'buddy' && <BuddyView SD={SD} ENTRIES={ENTRIES} />}
+          {view === 'ai' && <AiAssistantView SD={SD} observerMode={observerMode} />}
+          {view === 'buddy' && <BuddyView SD={SD} ENTRIES={ENTRIES} buddy={buddy} setBuddy={setBuddy} uName={uName} observerMode={observerMode} />}
         </div>
       </div>
     </>

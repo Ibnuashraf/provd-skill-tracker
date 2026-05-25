@@ -1,112 +1,74 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { chatWithAi } from './AiService';
 
-const BUDDIES = [
-  {
-    id: 'alex',
-    name: 'Alex',
-    role: 'Systems Engineer',
-    avatar: '👨‍💻',
-    skills: 'Rust, C++, WebAssembly',
-    streak: 12,
-    points: 184,
-    level: 6,
-    personality: 'Technical, analytical, precise, and supportive but nerdy.',
-    goals: 'Optimize low-level performance of his custom interpreter.',
-    systemPrompt: 'You are Alex, a precise Systems Engineer learning Rust & System Architecture. Your current streak is 12 days. Respond to the user in a technical, slightly nerdy, but highly encouraging and analytical tone. Focus on system efficiency, code patterns, and debugging. Keep your response concise (1-2 sentences).'
-  },
-  {
-    id: 'zoe',
-    name: 'Zoe',
-    role: 'UI/UX Designer',
-    avatar: '👩‍🎨',
-    skills: 'Figma, SVG Animation, Design Systems',
-    streak: 18,
-    points: 245,
-    level: 7,
-    personality: 'High-energy, enthusiastic, passionate about beauty and UX micro-interactions.',
-    goals: 'Complete an interactive dark-mode component library.',
-    systemPrompt: 'You are Zoe, a passionate UI/UX Designer learning Figma, SVG animations, and design systems. Your current streak is 18 days. Respond to the user in a high-energy, friendly, and visual-focused tone. Use standard design terms (hierarchy, visual balance, micro-animations) and casual emojis. Keep your response concise (1-2 sentences).'
-  },
-  {
-    id: 'kai',
-    name: 'Kai',
-    role: 'AI Researcher',
-    avatar: '🧠',
-    skills: 'PyTorch, Transformers, Data Science',
-    streak: 8,
-    points: 110,
-    level: 5,
-    personality: 'Deep-thinking, philosophical, calm, focused on theory.',
-    goals: 'Train a local language model on specialized documentation.',
-    systemPrompt: 'You are Kai, an AI Researcher learning Deep Learning & NLP models. Your current streak is 8 days. Respond to the user in a calm, highly thoughtful, slightly philosophical, and theoretical tone. Focus on conceptual clarity, understanding the mathematics, and the nature of learning. Keep your response concise (1-2 sentences).'
-  }
-];
-
-export default function BuddyView({ SD, ENTRIES }) {
-  const [selBuddyId, setSelBuddyId] = useState('alex');
+export default function BuddyView({ SD, ENTRIES, buddy, setBuddy, uName, observerMode }) {
   const [nudgeReply, setNudgeReply] = useState('');
   const [nudgeType, setNudgeType] = useState('');
   const [chatInput, setChatInput] = useState('');
-  const [chatLog, setChatLog] = useState({
-    alex: [{ type: 'bot', text: 'Hey there! I am currently optimizing some memory allocations in my Rust compiler. What skills are you building today?' }],
-    zoe: [{ type: 'bot', text: 'OMG hi! I am literally styling the most gorgeous glassmorphism dashboard in Figma right now. How is your streak going?' }],
-    kai: [{ type: 'bot', text: 'Greetings. I have been exploring matrix transformations in self-attention layers. Let us share our learning trajectories.' }]
-  });
+  const [chatLog, setChatLog] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [copied, setCopied] = useState(false);
   const chatEndRef = useRef(null);
 
-  const activeBuddy = BUDDIES.find(b => b.id === selBuddyId);
   const userStreak = Math.max(...SD.map(s => s.stk), 0);
   const userPoints = ENTRIES.reduce((acc, curr) => acc + curr.pts, 0);
   const userLevel = Math.max(...SD.map(s => s.lv), 1);
 
+  // Generate real serverless invite URL
+  const getInviteUrl = () => {
+    const origin = window.location.origin + window.location.pathname;
+    return `${origin}?invite=true&bName=${encodeURIComponent(uName)}&bStreak=${userStreak}&bPoints=${userPoints}&bLevel=${userLevel}`;
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(getInviteUrl());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
+  };
+
+  // Connect a mock buddy to instantly test the comparison UI
+  const connectMockBuddy = () => {
+    setBuddy({
+      name: 'Ryan',
+      streak: 15,
+      points: 190,
+      level: 6
+    });
+  };
+
+  useEffect(() => {
+    if (buddy && chatLog.length === 0) {
+      setChatLog([
+        { type: 'bot', text: `Hey ${uName}! I am connected as your Skill Buddy. Let's push each other to study and build everyday. What are you practicing today?` }
+      ]);
+    }
+  }, [buddy]);
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatLog, selBuddyId]);
+  }, [chatLog]);
 
   const handleNudge = (type) => {
+    if (observerMode) return;
     setNudgeType(type);
     let reply = '';
     
     if (type === 'coffee') {
-      if (selBuddyId === 'alex') {
-        reply = "☕ 'Ah, caffeine injection! Thanks. This will fuel another 3 hours of memory leak debugging. Let's get to work!'";
-      } else if (selBuddyId === 'zoe') {
-        reply = "☕ 'A cup of pure motivation! Literally the best thing ever. I am so hyped right now, let's ship this!'";
-      } else {
-        reply = "☕ 'Ah, hot coffee. A perfect stimulant for neural pathways. Thank you, colleague. Let us focus together.'";
-      }
+      reply = `☕ 'Thanks for the coffee! I was just getting tired reviewing layout specs. Feeling highly energized now!' — ${buddy.name}`;
     } else if (type === 'poke') {
-      if (selBuddyId === 'alex') {
-        reply = "⚡ 'Ouch! Alright, compilation successful. No slacking! Have you logged your practice evidence yet?'";
-      } else if (selBuddyId === 'zoe') {
-        reply = "⚡ 'Ah! *poked!* Fine, fine, closing Pinterest now and starting on the layout! Go log your progress too!'";
-      } else {
-        reply = "⚡ 'An external signal. Understood. Returning to active learning loop immediately.'";
-      }
+      reply = `⚡ 'Ouch! Poked! Fine, closing distraction tabs now. Going straight to code some milestones!' — ${buddy.name}`;
     } else {
-      if (selBuddyId === 'alex') {
-        reply = "🤝 'Challenge accepted. Let's push 2 built commits to GitHub tonight. Whoever slacks buys dinner!'";
-      } else if (selBuddyId === 'zoe') {
-        reply = "🤝 'Oh my gosh, YES! Let's do a screen-share design sprints session tonight. Let's push each other!'";
-      } else {
-        reply = "🤝 'Collaborative learning yields superior cognitive retention. I am ready. Let us coordinate our focus.'";
-      }
+      reply = `🤝 'Challenge accepted! Let's log at least 2 entries before midnight. Winner gets ultimate bragging rights!' — ${buddy.name}`;
     }
 
     setNudgeReply(reply);
     
-    // Add to chat too!
     const logText = type === 'coffee' ? 'Sent coffee ☕' : type === 'poke' ? 'Nudged buddy ⚡' : 'Proposed 1v1 challenge 🤝';
-    setChatLog(prev => ({
+    setChatLog(prev => [
       ...prev,
-      [selBuddyId]: [
-        ...prev[selBuddyId],
-        { type: 'user', text: `[Action] ${logText}` },
-        { type: 'bot', text: reply }
-      ]
-    }));
+      { type: 'user', text: `[Action] ${logText}` },
+      { type: 'bot', text: reply }
+    ]);
 
     setTimeout(() => {
       setNudgeReply('');
@@ -115,26 +77,24 @@ export default function BuddyView({ SD, ENTRIES }) {
   };
 
   const handleSendChat = async () => {
-    if (!chatInput.trim()) return;
+    if (observerMode || !chatInput.trim()) return;
     const msgText = chatInput;
     setChatInput('');
 
-    // Add user message & typing indicator
-    setChatLog(prev => ({
+    setChatLog(prev => [
       ...prev,
-      [selBuddyId]: [
-        ...prev[selBuddyId],
-        { type: 'user', text: msgText },
-        { type: 'typing', text: '...' }
-      ]
-    }));
+      { type: 'user', text: msgText },
+      { type: 'typing', text: '...' }
+    ]);
     setIsTyping(true);
 
     try {
-      // Build message context for Gemini API
-      const buddyChatHistory = chatLog[selBuddyId].filter(c => c.type !== 'typing');
+      const buddyChatHistory = chatLog.filter(c => c.type !== 'typing');
       const messages = [
-        { role: 'system', content: activeBuddy.systemPrompt },
+        { 
+          role: 'system', 
+          content: `You are ${buddy.name}, a passionate learning companion and accountability partner for the user (${uName}). Respond to the user in a highly encouraging, friendly, and motivational peer tone. Emphasize consistency, streaks, and building things. Keep response to 1-2 sentences.`
+        },
         ...buddyChatHistory.map(m => ({
           role: m.type === 'bot' ? 'assistant' : 'user',
           content: m.text
@@ -145,71 +105,103 @@ export default function BuddyView({ SD, ENTRIES }) {
       const replyText = await chatWithAi(messages);
 
       setChatLog(prev => {
-        const cleanHistory = prev[selBuddyId].filter(c => c.type !== 'typing');
-        return {
-          ...prev,
-          [selBuddyId]: [
-            ...cleanHistory,
-            { type: 'bot', text: replyText }
-          ]
-        };
+        const cleanHistory = prev.filter(c => c.type !== 'typing');
+        return [
+          ...cleanHistory,
+          { type: 'bot', text: replyText }
+        ];
       });
     } catch (e) {
       setChatLog(prev => {
-        const cleanHistory = prev[selBuddyId].filter(c => c.type !== 'typing');
-        return {
-          ...prev,
-          [selBuddyId]: [
-            ...cleanHistory,
-            { type: 'bot', text: `Sorry, lost connection for a second. Let's keep working!` }
-          ]
-        };
+        const cleanHistory = prev.filter(c => c.type !== 'typing');
+        return [
+          ...cleanHistory,
+          { type: 'bot', text: `A bit busy practicing right now, but let's keep showing up!` }
+        ];
       });
     } finally {
       setIsTyping(false);
     }
   };
 
-  return (
-    <div className="view active">
-      <div className="vtit">Skill Buddy</div>
-      <div className="vsub">Interactive accountability companions to ensure you never learn alone.</div>
+  // Render invite screen if no buddy is active
+  if (!buddy) {
+    return (
+      <div className="view active">
+        <div className="vtit">Skill Buddy Cockpit</div>
+        <div className="vsub">Accountability is the best cheat-code to consistency. Generate a link to invite a friend!</div>
 
-      {/* Buddy Selection Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '22px' }}>
-        {BUDDIES.map(b => (
-          <div 
-            key={b.id} 
-            className={`card hover-3d ${selBuddyId === b.id ? 'active-buddy-card' : ''}`}
-            onClick={() => setSelBuddyId(b.id)}
-            style={{ 
-              cursor: 'pointer', 
-              border: selBuddyId === b.id ? '1px solid var(--lime)' : '0.5px solid var(--bd)',
-              background: selBuddyId === b.id ? 'rgba(184, 232, 48, 0.04)' : 'rgba(15, 15, 15, 0.85)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              padding: '16px'
-            }}
-          >
-            <div style={{ fontSize: '2rem' }}>{b.avatar}</div>
-            <div>
-              <div style={{ fontWeight: '700', color: 'var(--ink)' }}>{b.name}</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--ink2)' }}>{b.role}</div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--lime)', marginTop: '3px' }}>🔥 {b.streak}d streak</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px', marginTop: '12px' }}>
+          
+          <div className="card hover-3d" style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ fontSize: '2.5rem' }}>🔗</div>
+            <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.2rem', color: 'var(--ink)' }}>Generate Your Accountability Invite Link</h3>
+            <p style={{ fontSize: '0.86rem', color: 'var(--ink2)', lineHeight: 1.6 }}>
+              Copy your personalized invite link and send it to your friend. When they open the link, they can choose to either:
+            </p>
+            
+            <ul style={{ fontSize: '0.82rem', color: 'var(--ink3)', lineHeight: 1.7, paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <li><strong>Observe without participating:</strong> Browse your dashboard, skills, and milestones in a gorgeous read-only mode to watch your back.</li>
+              <li><strong>Join as active Buddy:</strong> Share their stats and streaks to compete and learn side-by-side with you!</li>
+            </ul>
+
+            <div className="share-box">
+              <div className="share-url">{getInviteUrl()}</div>
+              <button className="share-copy" onClick={copyToClipboard}>
+                {copied ? 'Copied! ✓' : 'Copy Invite Link'}
+              </button>
             </div>
           </div>
-        ))}
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="card" style={{ textAlign: 'center', padding: '24px' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🤖</div>
+              <h4 style={{ color: 'var(--ink)' }}>No Buddy nearby?</h4>
+              <p style={{ fontSize: '0.78rem', color: 'var(--ink2)', margin: '10px 0 16px 0', lineHeight: 1.5 }}>
+                Simulate a live connection with one of our AI learning companions to immediately test the side-by-side comparative dashboard.
+              </p>
+              <button className="sbmt" onClick={connectMockBuddy} style={{ padding: '8px 18px', fontSize: '0.8rem' }}>
+                Connect with AI Buddy
+              </button>
+            </div>
+            
+            <div className="card" style={{ padding: '20px' }}>
+              <div className="ctit">Why Skill Buddies?</div>
+              <p style={{ fontSize: '0.78rem', color: 'var(--ink3)', lineHeight: 1.5, marginTop: '6px' }}>
+                Study groups fail because they lack structured metrics. Provd Skill Buddy forces consistency by plotting your streaks against a peer. The moment one slacks, the other knows!
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  // Render comparative dashboard if buddy is active
+  return (
+    <div className="view active">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
+        <div>
+          <div className="vtit">Skill Buddy Dashboard</div>
+          <div className="vsub">Connected accountability partner: <strong>{buddy.name}</strong></div>
+        </div>
+        <button 
+          className="nbtn-ghost" 
+          style={{ padding: '6px 12px', fontSize: '0.74rem', border: '1px solid rgba(224, 74, 32, 0.2)', color: '#E04A20' }}
+          onClick={() => setBuddy(null)}
+        >
+          Disconnect Buddy
+        </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '16px' }}>
         
-        {/* Core Accountability Dashboard */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           
-          {/* Side by side stats card */}
+          {/* Comparisons Card */}
           <div className="card" style={{ padding: '22px' }}>
-            <div className="ctit">Active Comparison vs {activeBuddy.name}</div>
+            <div className="ctit">Active Statistics vs {buddy.name}</div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '18px' }}>
               
@@ -217,18 +209,18 @@ export default function BuddyView({ SD, ENTRIES }) {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '6px' }}>
                   <span style={{ color: 'var(--ink)' }}>Your Streak: <strong>{userStreak} days</strong></span>
-                  <span style={{ color: 'var(--amber)' }}>{activeBuddy.name}'s Streak: <strong>{activeBuddy.streak} days</strong></span>
+                  <span style={{ color: 'var(--amber)' }}>{buddy.name}'s Streak: <strong>{buddy.streak} days</strong></span>
                 </div>
                 <div className="sk-bar-bg" style={{ height: '8px', background: 'rgba(237,234,228,.04)' }}>
                   <div style={{ display: 'flex', width: '100%', height: '100%' }}>
                     <div style={{ 
-                      width: `${(userStreak / (userStreak + activeBuddy.streak || 1)) * 100}%`, 
+                      width: `${(userStreak / (userStreak + buddy.streak || 1)) * 100}%`, 
                       background: 'var(--lime)', 
                       borderRadius: '4px 0 0 4px',
                       transition: 'all 0.3s'
                     }} />
                     <div style={{ 
-                      width: `${(activeBuddy.streak / (userStreak + activeBuddy.streak || 1)) * 100}%`, 
+                      width: `${(buddy.streak / (userStreak + buddy.streak || 1)) * 100}%`, 
                       background: 'var(--amber)', 
                       borderRadius: '0 4px 4px 0',
                       transition: 'all 0.3s'
@@ -241,18 +233,18 @@ export default function BuddyView({ SD, ENTRIES }) {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '6px' }}>
                   <span style={{ color: 'var(--ink)' }}>Your Total Points: <strong>{userPoints} pts</strong></span>
-                  <span style={{ color: '#2898D8' }}>{activeBuddy.name}'s Points: <strong>{activeBuddy.points} pts</strong></span>
+                  <span style={{ color: '#2898D8' }}>{buddy.name}'s Points: <strong>{buddy.points} pts</strong></span>
                 </div>
                 <div className="sk-bar-bg" style={{ height: '8px', background: 'rgba(237,234,228,.04)' }}>
                   <div style={{ display: 'flex', width: '100%', height: '100%' }}>
                     <div style={{ 
-                      width: `${(userPoints / (userPoints + activeBuddy.points || 1)) * 100}%`, 
+                      width: `${(userPoints / (userPoints + buddy.points || 1)) * 100}%`, 
                       background: 'var(--lime)', 
                       borderRadius: '4px 0 0 4px',
                       transition: 'all 0.3s'
                     }} />
                     <div style={{ 
-                      width: `${(activeBuddy.points / (userPoints + activeBuddy.points || 1)) * 100}%`, 
+                      width: `${(buddy.points / (userPoints + buddy.points || 1)) * 100}%`, 
                       background: '#2898D8', 
                       borderRadius: '0 4px 4px 0',
                       transition: 'all 0.3s'
@@ -268,8 +260,8 @@ export default function BuddyView({ SD, ENTRIES }) {
                   <div style={{ fontSize: '1.4rem', fontWeight: '800', color: 'var(--lime)', marginTop: '4px' }}>Lv {userLevel}</div>
                 </div>
                 <div style={{ border: '0.5px solid var(--bd)', borderRadius: 'var(--r)', padding: '10px', background: 'rgba(237,234,228,.01)' }}>
-                  <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: 'var(--ink3)' }}>{activeBuddy.name}'s Level</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: '800', color: 'var(--ink)', marginTop: '4px' }}>Lv {activeBuddy.level}</div>
+                  <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: 'var(--ink3)' }}>{buddy.name}'s Level</div>
+                  <div style={{ fontSize: '1.4rem', fontWeight: '800', color: 'var(--ink)', marginTop: '4px' }}>Lv {buddy.level}</div>
                 </div>
               </div>
 
@@ -278,13 +270,14 @@ export default function BuddyView({ SD, ENTRIES }) {
 
           {/* Quick Actions / Nudges Card */}
           <div className="card">
-            <div className="ctit">Send accountability Nudges</div>
-            <div className="vsub" style={{ margin: '4px 0 16px 0', fontSize: '0.78rem' }}>Interact with {activeBuddy.name} in real-time to trigger instant visual responses.</div>
+            <div className="ctit">Send Nudges to {buddy.name}</div>
+            <div className="vsub" style={{ margin: '4px 0 16px 0', fontSize: '0.78rem' }}>Trigger instant dialogue bubble interactions.</div>
             
             <div style={{ display: 'flex', gap: '10px' }}>
               <button 
                 className="gbtn hover-3d" 
                 onClick={() => handleNudge('coffee')}
+                disabled={observerMode}
                 style={{ flex: 1, padding: '12px', fontSize: '0.82rem' }}
               >
                 ☕ Send Coffee
@@ -292,6 +285,7 @@ export default function BuddyView({ SD, ENTRIES }) {
               <button 
                 className="gbtn hover-3d" 
                 onClick={() => handleNudge('poke')}
+                disabled={observerMode}
                 style={{ flex: 1, padding: '12px', fontSize: '0.82rem' }}
               >
                 ⚡ Poke Buddy
@@ -299,6 +293,7 @@ export default function BuddyView({ SD, ENTRIES }) {
               <button 
                 className="gbtn hover-3d" 
                 onClick={() => handleNudge('challenge')}
+                disabled={observerMode}
                 style={{ flex: 1, padding: '12px', fontSize: '0.82rem' }}
               >
                 🤝 Challenge 1v1
@@ -318,12 +313,12 @@ export default function BuddyView({ SD, ENTRIES }) {
                 lineHeight: '1.5',
                 animation: 'vfade 0.2s ease'
               }}>
-                <strong>{activeBuddy.name} says:</strong> {nudgeReply}
+                <strong>{buddy.name} says:</strong> {nudgeReply}
               </div>
             )}
           </div>
 
-          {/* Shared Weekly Challenge Card */}
+          {/* Joint Weekly Milestones */}
           <div className="card">
             <div className="ctit">Joint Weekly Accountability Milestones</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
@@ -335,24 +330,19 @@ export default function BuddyView({ SD, ENTRIES }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(237,234,228,.02)', padding: '10px 14px', borderRadius: '6px', border: '0.5px solid var(--bd)' }}>
                 <div style={{ color: 'var(--ink3)' }}>○</div>
                 <div style={{ flex: 1, fontSize: '0.8rem' }}>Accumulate 50 logged evidence points combined this week</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--ink3)' }}>38 / 50 pts</div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(237,234,228,.02)', padding: '10px 14px', borderRadius: '6px', border: '0.5px solid var(--bd)' }}>
-                <div style={{ color: 'var(--ink3)' }}>○</div>
-                <div style={{ flex: 1, fontSize: '0.8rem' }}>Log at least 1 "Taught" evidence session each to reinforce absolute depth</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--ink3)' }}>1 / 2 done</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--ink3)' }}>{userPoints + buddy.points} / 250 pts</div>
               </div>
             </div>
           </div>
 
         </div>
 
-        {/* Live Interactive Dialogue & AI Chat window */}
+        {/* Live Chat window */}
         <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <div style={{ borderBottom: '0.5px solid var(--bd)', paddingBottom: '12px' }}>
-            <div className="ctit">Active Channel: Chat with {activeBuddy.name}</div>
+            <div className="ctit">Active Channel: Chat with {buddy.name}</div>
             <div style={{ fontSize: '0.75rem', color: 'var(--ink3)', marginTop: '4px' }}>
-              Focusing on: <span style={{ color: 'var(--ink2)' }}>{activeBuddy.skills}</span>
+              Strengthening streaks through deep daily logs.
             </div>
           </div>
 
@@ -367,7 +357,7 @@ export default function BuddyView({ SD, ENTRIES }) {
             padding: '12px 6px',
             marginTop: '10px' 
           }}>
-            {chatLog[selBuddyId].map((c, i) => (
+            {chatLog.map((c, i) => (
               <div 
                 key={i} 
                 className={c.type === 'bot' ? 'chat-msg-bot' : c.type === 'user' ? 'chat-msg-user' : 'chat-typing'}
@@ -392,17 +382,17 @@ export default function BuddyView({ SD, ENTRIES }) {
             <input 
               type="text" 
               className="fi" 
-              placeholder={`Ask ${activeBuddy.name} about ${activeBuddy.id === 'alex' ? 'Rust allocations' : activeBuddy.id === 'zoe' ? 'Figma layout grids' : 'Transformers'}...`}
+              placeholder={observerMode ? 'Chat disabled in Observer Mode' : `Message ${buddy.name}...`}
               value={chatInput}
               onChange={e => setChatInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSendChat()}
-              disabled={isTyping}
+              disabled={isTyping || observerMode}
             />
             <button 
               className="sbmt" 
               style={{ padding: '8px 18px', fontSize: '0.8rem' }}
               onClick={handleSendChat}
-              disabled={isTyping}
+              disabled={isTyping || observerMode}
             >
               Send
             </button>
