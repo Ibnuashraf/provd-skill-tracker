@@ -388,3 +388,11 @@ select.fi option{background:var(--bg2)}
 /* NEW SKILL INLINE FORM */
 .nsk-form{display:flex;gap:8px;margin-top:12px;display:none}
 .nsk-form.show{display:flex}
+
+/* SKILL BUDDY PREMIUM STYLES */
+.active-buddy-card {
+  border-color: var(--lime) !important;
+  box-shadow: 0 0 20px rgba(184, 232, 48, 0.15) !important;
+  background: rgba(184, 232, 48, 0.05) !important;
+}
+
