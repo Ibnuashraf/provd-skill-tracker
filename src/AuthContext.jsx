@@ -55,6 +55,11 @@ export function AuthProvider({ children }) {
     return result;
   };
 
+  const toggleLocalAuth = (value) => {
+    AuthService.setLocalAuth(value);
+    setIsLocalAuth(value);
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -62,7 +67,8 @@ export function AuthProvider({ children }) {
       isLocalAuth,
       signUp,
       signIn,
-      signOut
+      signOut,
+      toggleLocalAuth
     }}>
       {children}
     </AuthContext.Provider>

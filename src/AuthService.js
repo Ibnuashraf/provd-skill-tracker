@@ -260,5 +260,9 @@ export const AuthService = {
 
   isLocalAuth() {
     return useLocalAuth;
+  },
+
+  setLocalAuth(value) {
+    useLocalAuth = value;
   }
 };
