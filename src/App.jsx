@@ -6,6 +6,7 @@ import BuddyView from './BuddyView';
 import Background from './Background';
 import { INITIAL_SD, INITIAL_ENTRIES, INITIAL_MS, INITIAL_ACHS } from './Data';
 import Logo from './Logo';
+import { AuthService } from './AuthService';
 
 function Sidebar({ uName, activeView, setView, setUName, sidebarOpen, observerMode }) {
   let items = [
@@ -35,13 +36,22 @@ function Sidebar({ uName, activeView, setView, setUName, sidebarOpen, observerMo
           </button>
         ))}
       </div>
-      <div className="sb-bot">
+       <div className="sb-bot">
         <div className="sb-user">
           <div className="sb-av">{uName ? uName[0].toUpperCase() : 'U'}</div>
           {sidebarOpen && (
             <div>
               <div className="sb-nm">{uName}</div>
               <div className="sb-rl">Free tier</div>
+              <button 
+                style={{marginTop: '8px', fontSize: '0.75rem', color: 'var(--ink3)', background: 'none', border: 'none', cursor: 'pointer', padding: 0}}
+                onClick={async () => {
+                  await AuthService.signOut();
+                  setUName('');
+                }}
+              >
+                Sign out
+              </button>
             </div>
           )}
         </div>

@@ -40,7 +40,7 @@ In Supabase dashboard, go to **Database → Tables**. You should see:
 
 ### Tables
 | Table | Purpose |
-|-------|----------|
+|-------|---------|
 | `users` | User profiles & metadata |
 | `user_data` | User progress & settings |
 | `skills` | Skill tracking |
