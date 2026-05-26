@@ -97,7 +97,7 @@ export default function Dashboard({ SD, ENTRIES, maxStk, setView }) {
         ))}
       </div>
 
-      <div style={{display:'grid',gridTemplateColumns:'1fr 2fr',gap:'16px',marginTop:'20px'}}>
+      <div className="dash-grid2">
         <div className="card">
           <div className="ctit">Last 4 Weeks Activity</div>
           <div className="hm-g">

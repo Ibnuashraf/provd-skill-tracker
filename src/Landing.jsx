@@ -7,21 +7,6 @@ export default function Landing({ setUName, setView }) {
   const [qIdx, setQIdx] = useState(0);
   const [showModal, setShowModal] = useState(false);
 
-  const [heroStreak, setHeroStreak] = useState(24);
-  const [heroBuddyStreak, setHeroBuddyStreak] = useState(21);
-  const [heroNudgeMsg, setHeroNudgeMsg] = useState('');
-
-  const handleHeroNudge = (type) => {
-    if (type === 'coffee') {
-      setHeroStreak(prev => prev + 1);
-      setHeroNudgeMsg("☕ 'Thanks for the coffee! Hot caffeinated focus! Your turn to log!' — Ryan");
-    } else if (type === 'poke') {
-      setHeroNudgeMsg("⚡ 'Ouch! Poked! Fine, fine, closing Twitter and coding now!' — Ryan");
-    } else {
-      setHeroNudgeMsg("🤝 '1v1 accountability sprint accepted! Let's build!' — Ryan");
-    }
-    setTimeout(() => setHeroNudgeMsg(''), 4500);
-  };
   useEffect(() => {
     const timer = setInterval(() => {
       setQIdx((prev) => (prev + 1) % QUOTES.length);
@@ -82,60 +67,6 @@ export default function Landing({ setUName, setView }) {
           <div className="btns">
             <button className="nbtn-lg" onClick={handleStart}>Start tracking free →</button>
             <button className="nbtn-ghost" onClick={() => document.getElementById('problems').scrollIntoView({behavior:'smooth'})}>Read the manifesto</button>
-          </div>
-        </div>
-        
-        <div className="mock-ui hover-3d" style={{ maxWidth: '640px', margin: '0 auto', transition: 'all 0.3s ease' }}>
-          <div style={{padding:'14px 20px', borderBottom:'1px solid rgba(255,255,255,0.05)', display:'flex', gap:'10px', alignItems:'center'}}>
-            <div style={{width:'10px',height:'10px',borderRadius:'50%',background:'#E04A20'}}></div>
-            <div style={{width:'10px',height:'10px',borderRadius:'50%',background:'#FBBC05'}}></div>
-            <div style={{width:'10px',height:'10px',borderRadius:'50%',background:'#B8E830'}}></div>
-            <div style={{marginLeft:'auto', fontSize:'.72rem', color:'var(--ink2)', letterSpacing: '0.04em'}}>🤝 INVITATION ENGINE & COMPARATIVE HUD</div>
-          </div>
-          
-          <div style={{padding:'24px', display:'flex', flexDirection: 'column', gap:'16px'}}>
-             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-               <div style={{flex: 1, minWidth: '180px', background:'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', borderRadius:'8px', padding:'16px'}}>
-                  <div style={{fontSize:'.68rem', textTransform:'uppercase', letterSpacing: '0.05em', color:'var(--ink3)', marginBottom:'6px'}}>Your Active Streak</div>
-                  <div style={{fontSize:'1.8rem', color:'var(--lime)', fontWeight:800}}>🔥 {heroStreak} <span style={{fontSize: '0.8rem', color: 'var(--ink2)'}}>days</span></div>
-               </div>
-               <div style={{flex: 1, minWidth: '180px', background:'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', borderRadius:'8px', padding:'16px'}}>
-                  <div style={{fontSize:'.68rem', textTransform:'uppercase', letterSpacing: '0.05em', color:'var(--ink3)', marginBottom:'6px'}}>Buddy (Ryan) Streak</div>
-                  <div style={{fontSize:'1.8rem', color:'var(--amber)', fontWeight:800}}>🔥 {heroBuddyStreak} <span style={{fontSize: '0.8rem', color: 'var(--ink2)'}}>days</span></div>
-               </div>
-             </div>
-
-             <div style={{ background: 'rgba(255,255,255,0.01)', padding: '14px', borderRadius: '8px', border: '0.5px solid rgba(255,255,255,0.03)' }}>
-               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', marginBottom: '8px', color: 'var(--ink2)' }}>
-                 <span>Streak Ratio comparison meter (Interactive)</span>
-                 <span style={{ color: 'var(--lime)' }}>{Math.round((heroStreak/(heroStreak+heroBuddyStreak))*100)}% Yours</span>
-               </div>
-               <div style={{ height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', overflow: 'hidden', display: 'flex' }}>
-                 <div style={{ width: `${(heroStreak / (heroStreak + heroBuddyStreak)) * 100}%`, background: 'var(--lime)', transition: 'width 0.4s' }} />
-                 <div style={{ width: `${(heroBuddyStreak / (heroStreak + heroBuddyStreak)) * 100}%`, background: 'var(--amber)', transition: 'width 0.4s' }} />
-               </div>
-             </div>
-
-             <div style={{ display: 'flex', gap: '10px' }}>
-               <button className="gbtn hover-3d" onClick={() => handleHeroNudge('coffee')} style={{ padding: '8px 12px', fontSize: '0.74rem', flex: 1 }}>☕ Send Coffee</button>
-               <button className="gbtn hover-3d" onClick={() => handleHeroNudge('poke')} style={{ padding: '8px 12px', fontSize: '0.74rem', flex: 1 }}>⚡ Poke Ryan</button>
-               <button className="gbtn hover-3d" onClick={() => handleHeroNudge('challenge')} style={{ padding: '8px 12px', fontSize: '0.74rem', flex: 1 }}>🤝 1v1 Sprint</button>
-             </div>
-
-             {heroNudgeMsg && (
-               <div style={{ 
-                 background: 'rgba(184,232,48,0.06)', 
-                 border: '0.5px solid rgba(184,232,48,0.2)', 
-                 borderRadius: '6px', 
-                 padding: '10px 14px', 
-                 fontSize: '0.78rem', 
-                 color: 'var(--lime)', 
-                 fontStyle: 'italic',
-                 animation: 'vfade 0.2s ease'
-               }}>
-                 {heroNudgeMsg}
-               </div>
-             )}
           </div>
         </div>
 
