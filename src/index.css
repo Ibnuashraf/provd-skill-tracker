@@ -427,3 +427,298 @@ footer{padding:24px 48px;border-top:.5px solid var(--bd);display:flex;justify-co
   .pdsc{font-size:.95rem}
   .stag{font-size:.6rem}
 }
+
+/* ==========================================================================
+   RESTORED PREMIUM UI COMPONENTS (MILESTONES, ROADMAPS, ACHIEVEMENTS, CHAT)
+   ========================================================================== */
+
+/* MILESTONES & STEP-BY-STEP CHECKLISTS */
+.ms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+.ms-it {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(15, 15, 15, 0.70);
+  border: 0.5px solid var(--bd);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  transition: border-color 0.18s, background 0.18s;
+}
+.ms-it.done {
+  border-color: rgba(184, 232, 48, 0.20);
+  background: rgba(184, 232, 48, 0.02);
+}
+.ms-it.cur {
+  border-color: rgba(184, 232, 48, 0.35);
+  box-shadow: 0 0 10px rgba(184, 232, 48, 0.05);
+}
+.ms-ck {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--bd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.16s ease;
+}
+.ms-it.done .ms-ck {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: #080808;
+  font-weight: 900;
+}
+.ms-it.cur .ms-ck {
+  border-color: var(--lime);
+  color: var(--lime);
+}
+.ms-tx {
+  font-size: 0.88rem;
+  color: var(--ink);
+  flex: 1;
+  font-weight: 500;
+}
+.ms-it.done .ms-tx {
+  color: var(--ink3);
+  text-decoration: line-through;
+  text-decoration-color: rgba(237, 234, 228, 0.25);
+}
+.ms-lb {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.ml-done {
+  background: rgba(184, 232, 48, 0.12);
+  color: var(--lime);
+}
+.ml-cur {
+  background: rgba(184, 232, 48, 0.06);
+  color: rgba(184, 232, 48, 0.85);
+}
+.ml-lock {
+  background: rgba(237, 234, 228, 0.03);
+  color: var(--ink3);
+}
+
+/* ROADMAP & CURRICULUM LEVELS GRID */
+.lvlname-g {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.lvlname-c {
+  background: rgba(15, 15, 15, 0.75);
+  border: 0.5px solid var(--bd);
+  border-radius: var(--r2);
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+.lvlname-c.reached {
+  border-color: rgba(184, 232, 48, 0.18);
+  background: rgba(184, 232, 48, 0.03);
+}
+.lvlname-c.locked {
+  opacity: 0.38;
+}
+.lvl-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--ink3);
+  margin-bottom: 4px;
+}
+.lvlname-c.reached .lvl-num {
+  color: var(--lime);
+}
+.lvl-nm {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--ink);
+  margin-bottom: 3px;
+}
+.lvl-dsc {
+  font-size: 0.76rem;
+  color: var(--ink3);
+  line-height: 1.4;
+}
+
+/* BADGES & ACHIEVEMENTS GRID */
+.lvl-g {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.ach-card {
+  background: rgba(15, 15, 15, 0.75);
+  border: 0.5px solid var(--bd);
+  border-radius: var(--r2);
+  padding: 20px 16px;
+  text-align: center;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.ach-card.unlocked {
+  border-color: rgba(184, 232, 48, 0.15);
+  background: rgba(184, 232, 48, 0.03);
+  opacity: 1;
+}
+.ach-card.locked {
+  opacity: 0.40;
+}
+.ach-card.unlocked::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--lime);
+}
+.ach-ic {
+  font-size: 1.95rem;
+  margin-bottom: 8px;
+}
+.ach-nm {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 0.88rem;
+  margin-bottom: 4px;
+  color: var(--ink);
+}
+.ach-rq {
+  font-size: 0.76rem;
+  color: var(--ink3);
+  line-height: 1.4;
+  margin-bottom: 8px;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ach-st {
+  display: inline-block;
+  font-size: 0.64rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ast-un {
+  background: rgba(184, 232, 48, 0.12);
+  color: var(--lime);
+}
+.ast-lk {
+  background: rgba(237, 234, 228, 0.02);
+  color: var(--ink3);
+}
+
+/* SHARE ACCOUNTABILITY SYSTEM */
+.share-box {
+  background: rgba(237, 234, 228, 0.02);
+  border: 1px solid rgba(237, 234, 228, 0.06);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+.share-url {
+  flex: 1;
+  font-size: 0.78rem;
+  color: var(--lime);
+  font-family: monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.share-copy {
+  background: var(--lime);
+  color: #080808;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  font-family: 'Syne', sans-serif;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+.share-copy:hover {
+  background: var(--lime2);
+}
+
+/* AI CHATBUBBLES */
+.chat-msg-user {
+  margin-left: auto;
+  max-width: 85%;
+  background: rgba(184, 232, 48, 0.05);
+  border: 0.5px solid rgba(184, 232, 48, 0.15);
+  border-radius: 12px 12px 2px 12px;
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  color: var(--ink);
+}
+.chat-msg-bot {
+  max-width: 85%;
+  background: rgba(237, 234, 228, 0.02);
+  border: 0.5px solid var(--bd);
+  border-radius: 12px 12px 12px 2px;
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  color: var(--ink2);
+}
+.chat-typing {
+  max-width: 85%;
+  background: rgba(237, 234, 228, 0.02);
+  border: 0.5px solid var(--bd);
+  border-radius: 12px 12px 12px 2px;
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  color: var(--ink3);
+  animation: pulse 0.8s infinite alternate;
+}
+@keyframes pulse {
+  to { opacity: 0.4; }
+}
+
+/* PROGRESS BARS */
+.ach-prog-wrap {
+  background: rgba(237, 234, 228, 0.04);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+  margin: 14px 0 20px;
+  width: 100%;
+  max-width: 320px;
+}
+.ach-prog-bar {
+  height: 100%;
+  background: var(--lime);
+  transition: width 0.4s ease;
+}
+
+/* ACTIVE BUDDY GLOW */
+.active-buddy-card {
+  border-color: var(--lime) !important;
+  box-shadow: 0 0 20px rgba(184, 232, 48, 0.15) !important;
+  background: rgba(184, 232, 48, 0.05) !important;
+}
